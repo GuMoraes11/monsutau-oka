@@ -17,7 +17,8 @@ class EntryActivity : AppCompatActivity() {
 
     private val permissions = arrayOf(
         Manifest.permission.ACTIVITY_RECOGNITION,
-        Manifest.permission.POST_NOTIFICATIONS)
+        Manifest.permission.POST_NOTIFICATIONS,
+        Manifest.permission.INTERNET)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")

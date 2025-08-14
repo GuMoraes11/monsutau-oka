@@ -5,12 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import edu.chapman.monsutauoka.databinding.FragmentGammaBinding
 import edu.chapman.monsutauoka.extensions.TAG
 import edu.chapman.monsutauoka.ui.GenericViewModelFactory
 import edu.chapman.monsutauoka.ui.MainFragmentBase
-import edu.chapman.monsutauoka.ui.first.AlphaViewModel
 
 class GammaFragment : MainFragmentBase<FragmentGammaBinding>() {
 
@@ -28,18 +28,35 @@ class GammaFragment : MainFragmentBase<FragmentGammaBinding>() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d(TAG, ::onViewCreated.name)
+        super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonDecrement.setOnClickListener {
-            viewModel.num.value--
+        viewModel.text.observe(viewLifecycleOwner) { txt ->
+            if (binding.content.text.toString() != txt) {
+                binding.content.setText(txt)
+                binding.content.setSelection(binding.content.text?.length ?: 0)
+            }
         }
 
-        binding.buttonIncrement.setOnClickListener {
-            viewModel.num.value++
+        viewModel.busy.observe(viewLifecycleOwner) { isBusy ->
+            binding.progress.visibility = if (isBusy) View.VISIBLE else View.GONE
+            binding.save.isEnabled = !isBusy
+            binding.content.isEnabled = !isBusy
         }
 
-        viewModel.num.observe(viewLifecycleOwner) { numValue ->
-            binding.textGamma.text = numValue.toString()
+        viewModel.error.observe(viewLifecycleOwner) { msg ->
+            if (!msg.isNullOrBlank()) {
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+            }
         }
+
+        binding.save.setOnClickListener {
+            viewModel.save(binding.content.text?.toString().orEmpty())
+        }
+    }
+
+    override fun onStart() {
+        Log.d(TAG, ::onStart.name)
+        super.onStart()
+        viewModel.load()
     }
 }
